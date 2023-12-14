@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic-Tac-Toe AI</title>
+  <link rel="icon" type="image/x-icon" href="img/tttico.png">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="menu-btn-container">
+    <button id="menu" onclick="toggleMenu()">
+      <img src="img/menuico.svg" alt="hamburger menu icon" width="30" height="30">
+    </button>
+  </div>
+
+  <div id="overlay" onclick="toggleMenu()">
+    <div id="menu-links">
+      <a id="1" href="#"><img src="img/gsitesico.png" alt="google-site-logo" width="30" height="45"> Documentation</a>
+      <a id="2" href="#"><img src="img/gslideico.png" alt="google-slide-logo" width="30" height="45"> Presentation</a>
+      <a id="3" href="#"><img src="img/ytico.png" alt="yt-logo" width="30" height="30"> Video</a>
+      <a id="4" href="#"><img src="img/githublogo.png" alt="github-logo" width="30" height="30"> Github</a>
+    </div>
+  </div>
+
+  <div class="settings-btn-container">
+    <button id="settings" onclick="toggleSettings()">
+      <img src="img/settingsico.png" alt="settings icon" width="30" height="30">
+    </button>
+  </div>
+
+  <div id="settings-window" style="display: none;">
+
+    <h3>Settings Panel</h3>
+    <br>
+    <p>Customize experience.</p>
+    <br>
+    <h4>Webpage Customization</h4>
+    
+    <input id="lightMode" type="radio" onclick="toggleDefaultMode()" checked><span>Light Mode</span>
+    <input id="darkMode" type="radio" onclick="toggleDarkMode()"><span>Dark Mode</span>
+    <input id="wargameTheme" type="radio" onclick="toggleWarGamesTheme()"><span>Wargames Theme</span>
+    <p>others coming soon!</p>
+
+    <hr style="width: 30px; border: 0.5px solid black;">
+    <br>
+    <h4>Game Board Settings</h4>
+
+    <span>3x3 Board</span> <input id="3x3" type="radio" onclick="" checked>
+    <p>others coming soon!</p>
+
+    <hr style="width: 30px; border: 0.5px solid black;">
+    <br>
+
+    <h4>Intelligence Level</h4>
+    <input type="range" id="intelligenceSlider" min="1" max="5" value="3" oninput="updateIntelligenceLevel(this.value)">
+    <span id="intelligenceLevelDisplay">Current Level: 3</span>
+
+    <br>
+
+    <h4>Gamemode</h4>
+    <!-- Gamemode 1: PlayervsAI, Gamemode 2: Player vs Player, Gamemode 3: Ai vs Ai -->
+    <input type="radio" id="gameMode1" name="gameMode" onclick="setGameMode('PlayervsAI')"><span>Ai vs Player</span>
+    <input type="radio" id="gameMode2" name="gameMode" onclick="setGameMode('PlayervsPlayer')" checked><span>Player vs Player</span>
+    <input type="radio" id="gameMode3" name="gameMode" onclick="setGameMode('AIvsAI')"><span>Ai vs Ai</span>
+
+  </div>
+
+  <p id="stateTurn">O's Turn</p>
+
+  <div id="gameBoard">
+    <!-- ROW 0 COL 0 - 2 -->
+    <input id="0_0" type="button" value="" onclick="playMove(this)">
+    <input id="0_1" type="button" value="" onclick="playMove(this)">
+    <input id="0_2" type="button" value="" onclick="playMove(this)">
+    <!-- ROW 1 COL 0 - 2 -->
+    <input id="1_0" type="button" value="" onclick="playMove(this)">
+    <input id="1_1" type="button" value="" onclick="playMove(this)">
+    <input id="1_2" type="button" value="" onclick="playMove(this)">
+    <!-- ROW 2 COL 0 - 2 -->
+    <input id="2_0" type="button" value="" onclick="playMove(this)">
+    <input id="2_1" type="button" value="" onclick="playMove(this)">
+    <input id="2_2" type="button" value="" onclick="playMove(this)">
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/gameBoard.js"></script>
+  <script src="js/intelligence.js"></script>
+  <script src="js/theme.js"></script>
+  <script type="text/javascript" defer>
+    function toggleMenu() {
+      var overlay = document.getElementById('overlay');
+      var menuIcon = document.getElementById('menu');
+    
+      if (overlay.style.width === '100%') {
+        // Close menu
+        overlay.style.width = '0';
+        menuIcon.getElementsByTagName('img')[0].src = 'img/menuico.svg';
+      } else {
+        // Open menu
+        overlay.style.width = '100%';
+        menuIcon.getElementsByTagName('img')[0].src = 'img/xico.svg';
+      }
+    }
+
+    function toggleSettings() {
+        var settingsWindow = document.getElementById('settings-window');
+        settingsWindow.style.display = (settingsWindow.style.display === 'none') ? 'block' : 'none';
+    }
+
+    let gameStarted = false; // Add this variable to track whether the game has started
+
+function setGameMode(mode) {
+    const radios = document.getElementsByName("gameMode");
+
+    // Check if the game has started; if yes, refresh the page
+    if (gameStarted) {
+        location.reload();
+        return;
+    }
+
+    radios.forEach(radio => {
+        if (radio.checked) {
+            radio.checked = false;
+        }
+    });
+
+    const selectedRadio = document.getElementById(`gameMode${mode === 'PlayervsAI' ? 1 : mode === 'AIvsAI' ? 3 : 2}`);
+    selectedRadio.checked = true;
+
+    // Call the corresponding function based on the selected game mode
+    if (mode === "PlayervsAI") {
+        playerVsAI();
+    } else if (mode === "PlayervsPlayer") {
+        playerVsPlayer();
+    } else if (mode === "AIvsAI") {
+        aiVsAi();
+    }
+
+    gameStarted = true; // Set the gameStarted variable to true after starting the game
+}
+
+function updateIntelligenceLevel(value) {
+      setIntelligenceLevel(value);
+      document.getElementById('intelligenceLevelDisplay').textContent = `Current Level: ${value}`;
+    }
+  </script>
+
+</body>
+</html> 
